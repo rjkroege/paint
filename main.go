@@ -1,4 +1,3 @@
-
 /*
 
 	A devdraw listener. Maybe I've named this wrong.
@@ -9,19 +8,18 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"code.google.com/p/goplan9/draw"
 	"image"
+	"log"
+
+	"9fans.net/go/draw"
 )
 
-func  watcher() {
-	
+func watcher() {
+
 }
 
-/*
- *	Redraws the world. (What world we have.)
- *	This is the "view" code. 
- */
+
+// redraw repaints the world. This is the view function.
 func redraw(d *draw.Display, resized bool) {
 	if resized {
 		if err := d.Attach(draw.Refmesg); err != nil {
@@ -34,44 +32,39 @@ func redraw(d *draw.Display, resized bool) {
 	var clipr image.Rectangle
 	fmt.Printf("empty clip? %v\n", clipr)
 	d.ScreenImage.Draw(clipr, d.White, nil, image.ZP)
-	d.Flush(true)
-}
-
-/*
- *	Reads the mouse channel and does stuff. Like redrawing the screen.
- */
-func mouse() {
-	fmt.Printf("called mouse\n");
+	d.Flush()
 }
 
 func main() {
-	fmt.Print("hello from devdraw\n");
+	log.Println("hello from devdraw")
 
-	// Make the window.	
+	// Make the window.
 	d, err := draw.Init(nil, "", "experiment1", "")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	
 	// make some colors
-	back, _ := d.AllocImage(image.Rect(0,0,1,1), d.ScreenImage.Pix, true, 0xDADBDAff);
+	back, _ := d.AllocImage(image.Rect(0, 0, 1, 1), d.ScreenImage.Pix, true, 0xDADBDAff)
 
-	fmt.Printf("background colour: %v\n ", back);
+	fmt.Printf("background colour: %v\n ", back)
 
 	// get mouse positions
 	mousectl := d.InitMouse()
-	redraw(d, false);
+	redraw(d, false)
 
 	for {
 		select {
 		case <-mousectl.Resize:
 			redraw(d, true)
 		case m := <-mousectl.C:
-			fmt.Printf("mouse field %v buttons %d\n", m, m.Buttons)
-			// TODO(rjkroege): insert code here to do some drawing and stuff.
-			d.ScreenImage.Draw(image.Rect(m.X, m.Y, m.X + 10, m.Y + 10), back, nil, image.ZP)
-			d.Flush(true)
+			// fmt.Printf("mouse field %v buttons %d\n", m, m.Buttons)
+	
+			if (m.Buttons & 1 == 1) {
+				// Draws little rectangles for each recorded mouse position.
+				d.ScreenImage.Draw(image.Rect(m.X, m.Y, m.X+10, m.Y+10), back, nil, image.ZP)
+				d.Flush()
+			}
 		}
 	}
 
