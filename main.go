@@ -10,6 +10,8 @@ import (
 	"fmt"
 	"image"
 	"log"
+	"math/rand"
+	"time"
 
 	"9fans.net/go/draw"
 )
@@ -35,6 +37,7 @@ func redraw(d *draw.Display, resized bool) {
 	d.Flush()
 }
 
+
 func main() {
 	log.Println("hello from devdraw")
 
@@ -46,12 +49,32 @@ func main() {
 
 	// make some colors
 	back, _ := d.AllocImage(image.Rect(0, 0, 1, 1), d.ScreenImage.Pix, true, 0xDADBDAff)
+	red, _ := d.AllocImage(image.Rect(0, 0, 1, 1), d.ScreenImage.Pix, true, 0xFF0000ff)
 
 	fmt.Printf("background colour: %v\n ", back)
 
 	// get mouse positions
 	mousectl := d.InitMouse()
 	redraw(d, false)
+
+	go func() {
+		rect := d.Image.R
+		log.Println(rect)
+		// make a random variable...
+		start := time.Now()
+		outerreps := 2000
+		innerreps := 10
+		for j := 0; j < outerreps; j++ {
+			for i := 0 ; i < innerreps; i++ {
+				X := rand.Intn(rect.Max.X)
+				Y := rand.Intn(rect.Max.Y)
+				d.ScreenImage.Draw(image.Rect(X, Y, X+22, Y+26), back, nil, image.ZP)
+			}
+			d.Flush()
+		}
+		elapsed := time.Since(start)
+		log.Println( "time per quad: ", (elapsed.Nanoseconds() / int64(outerreps * innerreps)) / 1000, "µs")
+	} ()
 
 	for {
 		select {
@@ -62,7 +85,7 @@ func main() {
 	
 			if (m.Buttons & 1 == 1) {
 				// Draws little rectangles for each recorded mouse position.
-				d.ScreenImage.Draw(image.Rect(m.X, m.Y, m.X+10, m.Y+10), back, nil, image.ZP)
+				d.ScreenImage.Draw(image.Rect(m.X, m.Y, m.X+22, m.Y+26), red, nil, image.ZP)
 				d.Flush()
 			}
 		}
