@@ -17,7 +17,7 @@ import (
 )
 
 func watcher() {
-
+	log.Println("invoked watcher function")
 }
 
 
