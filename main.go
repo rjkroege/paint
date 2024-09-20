@@ -24,7 +24,7 @@ func watcher() {
 // redraw repaints the world. This is the view function.
 func redraw(d *draw.Display, resized bool) {
 	if resized {
-		if err := d.Attach(draw.Refmesg); err != nil {
+		if err := d.Attach(draw.RefMesg); err != nil {
 			log.Fatalf("can't reattach to window: %v", err)
 		}
 	}
